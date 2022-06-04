@@ -1,13 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { configureStore, Action } from "@reduxjs/toolkit";
 import { ThunkAction } from "redux-thunk";
-import { LoginReducer, ReducerApi } from "./redux/slices";
+import { LoginReducer } from "./redux/slices";
 import { createSelectorHook, useDispatch } from "react-redux";
 import {
 } from "./redux/slices";
 
-const AppReducer = combineReducers({
-  api: ReducerApi,
+const AppReducer = combineReducers({  
   login:LoginReducer,
 });
 

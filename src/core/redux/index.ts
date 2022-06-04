@@ -1,1 +1,1 @@
-export * from './thunk'
+export * from './slices'

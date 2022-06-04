@@ -1,9 +1,9 @@
-import { unwrapResult } from "@reduxjs/toolkit";
 import React from "react"
 import { Button, Form } from "react-bootstrap";
 import { Redirect, useHistory } from "react-router";
+import { mutate } from "swr";
 import { UiRoutes } from "../../config/UIRoutes";
-import { ThunkLogin, useDispatchTyped } from "../../core";
+import { ApiLoginDemo, EnumApi } from "../../core";
 import { AppStorage, useMultiState } from "../../lib"
 
 interface IState{
@@ -14,20 +14,21 @@ interface IState{
 
 function LoginDemoComponent(){
     const [state,setState]=useMultiState<IState>({isBusy:false,password:"cityslicka",userName:"eve.holt@reqres.in"});
-    const dispatch = useDispatchTyped();
     const history = useHistory();
-    if(!!AppStorage.getAccessToken()) return <Redirect to={UiRoutes.HomeDemo} />    
+    if(!!AppStorage.getAccessToken()) return <Redirect to={UiRoutes.HomeDemo} />              
 
-      
-    const logIn = () => {
-        dispatch(ThunkLogin({arg:{apiData:{password:state.password,userName:state.userName}}})).then(unwrapResult).then(res=>{
-            if(res.response) {
+    const login = ()=>{
+        setState({isBusy:true})
+        ApiLoginDemo(state.userName!,state.password!).then(res=>{
+            setState({isBusy:false});
+            if(res.response){
                 AppStorage.setAccessToken(res.response.token);
                 AppStorage.setUserInfo(res.response);
+                mutate(EnumApi.Login,res.response);
                 history.push(UiRoutes.HomeDemo);
             }
         })
-    };
+    }
 
     return <div className="text-center d-flex justify-content-center align-items-center h-100">
         <div className="w-25">
@@ -43,9 +44,8 @@ function LoginDemoComponent(){
             <div className="py-1">
                 <Form.Control type="password" placeholder="Enter password" 
                     onChange={e=> setState({password:e.target.value})} value={state.password} />
-            </div>
-            
-            <Button className="text-center" onClick={logIn} disabled={state.isBusy}>Login</Button>
+            </div>            
+            <Button className="text-center" onClick={login} disabled={state.isBusy}>Login</Button>
         </div>        
     </div>
 }

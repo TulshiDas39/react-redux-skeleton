@@ -1,19 +1,17 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { Button } from "react-bootstrap";
 import { Redirect, useHistory } from "react-router";
+import useSWR from "swr";
 import { UiRoutes } from "../../config/UIRoutes";
-import { ThunkGetUser, useDispatchTyped } from "../../core";
-import { AppStorage, useSelectorApi } from "../../lib";
+import { ApiGetUser, EnumApi } from "../../core";
+import { AppStorage } from "../../lib";
 
 function HomeDemoComponent(){
-    const dispatch = useDispatchTyped();
     const history = useHistory();
-    useEffect(()=>{
-        dispatch(ThunkGetUser({arg:{userId:"2"}}));
-    },[])
-    const userData = useSelectorApi("user");
-    if(userData.isBusy) return <p className="text-center">Loading...</p>
-    const user = userData.response?.data;
+    const {data, isValidating} = useSWR(EnumApi.GetUser, async ()=> await ApiGetUser("2"));
+
+    if(isValidating) return <p className="text-center">Loading...</p>
+    const user = data?.response?.data;
     const handleLogout = ()=>{
         localStorage.clear();
         history.push(UiRoutes.HomeDemo);
