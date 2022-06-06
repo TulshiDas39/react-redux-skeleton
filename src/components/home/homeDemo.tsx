@@ -8,14 +8,19 @@ import { AppStorage } from "../../lib";
 
 function HomeDemoComponent(){
     const history = useHistory();
-    const {data, isValidating} = useSWR(EnumApi.GetUser, async ()=> await ApiGetUser("2"));
+    const {data, isValidating} = useSWR(EnumApi.GetUser,  {
+        fetcher:async ()=> await ApiGetUser("2"),
+        revalidateOnFocus:false,
+    });
 
-    if(isValidating) return <p className="text-center">Loading...</p>
     const user = data?.response?.data;
     const handleLogout = ()=>{
         localStorage.clear();
         history.push(UiRoutes.HomeDemo);
     }
+  
+    if(isValidating) return <p className="text-center">Loading...</p>
+
     if(!AppStorage.getAccessToken()) return <Redirect to={UiRoutes.LoginDemo} />
     return <div className="h-100 d-flex justify-content-center align-items-center">
         {!!user && <div>
